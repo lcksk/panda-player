@@ -1,0 +1,10 @@
+callbacks.c
+callbacks.h
+LICENSE
+Makefile
+panda_main.ui
+player.c
+player.h
+playlist.c
+playlist.h
+README
