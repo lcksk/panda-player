@@ -8,3 +8,5 @@ player.h
 playlist.c
 playlist.h
 README
+playlist_sqlite.c
+playlist_sqlite.h
