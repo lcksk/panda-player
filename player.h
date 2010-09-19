@@ -17,11 +17,7 @@
 #include <gst/interfaces/xoverlay.h>
 #include <stdbool.h>
 #include <time.h>
-
-typedef struct {
-	gchar name[1024];
-	gchar path[1024];
-} playlist_entry;
+#include <sqlite.h>
 
 typedef struct {
 	int argc;
@@ -46,12 +42,14 @@ typedef struct {
 	GstBus *bus;
 	char *uri;
 	gboolean pl_visible;
-	int pl_entry_count;
 	gboolean playing;
+	char *playlist_path;
+	char *str_videosink;
+	char *str_audiosink;
+	sqlite *playlist_db;
 		
 } panda_player;
 
-playlist_entry *pl_entry;
 
 gboolean bus_call(GstBus *bus, GstMessage *msg, void *user_data);
 void player_stop(panda_player *self);
@@ -78,3 +76,4 @@ gboolean player_seek(panda_player *self, gint64 pos);
 void player_hide_controls(panda_player *self);
 void player_show_controls(panda_player *self);
 
+void load_config(panda_player *self, const char *path);

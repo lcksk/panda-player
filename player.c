@@ -7,6 +7,7 @@
 #include "player.h"
 #include "playlist.h"
 #include "callbacks.h"
+#include "playlist_sqlite.h"
 
 gboolean bus_call(GstBus *bus, GstMessage *msg, void *user_data)
 {
@@ -89,7 +90,7 @@ void load_uri(panda_player *self, const char *filename) {
 	self->pipeline = gst_pipeline_new ("gst-player");
 	self->bin = gst_element_factory_make ("playbin", "bin");
 	g_object_set (G_OBJECT (self->bin), "uri", self->uri, NULL);
-	self->videosink = gst_element_factory_make ("xvimagesink", "videosink");
+	self->videosink = gst_element_factory_make (self->str_videosink, "videosink");
 	//self->videosink = gst_element_factory_make ("sdlvideosink", "videosink");
 	
 	g_object_set (G_OBJECT (self->bin), "video-sink", self->videosink, NULL);
@@ -145,7 +146,7 @@ void player_init(panda_player *self) {
 	g_debug("initializing gstreamer\n");
 	gst_init(&self->argc, &self->argv);
 	self->pipeline = gst_element_factory_make("playbin", "player");
-	self->videosink = gst_element_factory_make ("xvimagesink", "videosink");
+	self->videosink = gst_element_factory_make (self->str_videosink, "videosink");
 }
 
 
@@ -223,14 +224,20 @@ void player_hide_controls(panda_player *self) {
 	gtk_widget_hide(self->controls);
 }
 
+void load_config(panda_player *self, const char *path) {
+	
+}
 
 int main(int argc, char **argv) {
 	gtk_init (&argc, &argv);
 	panda_player *self = (panda_player *)malloc(sizeof(panda_player));
 	GtkWidget *button;
 	char *home = getenv("HOME");
-	char *playlist_path = (char *)malloc(1024*sizeof(char));
-	sprintf(playlist_path, "%s/.panda_player/playlist", home);
+	char cfgfile[1024];
+	sprintf(cfgfile, "%s/.panda_player/config", home);
+	sprintf(self->playlist_path, "%s/.panda_player/playlist", home);
+	self->str_videosink = "xvimagesink";
+	load_config(self, cfgfile);
 	
 	self->argc=argc;
 	self->argv=argv;
@@ -284,20 +291,23 @@ int main(int argc, char **argv) {
 	gtk_signal_connect(GTK_OBJECT(self->playlist), "row-activated", GTK_SIGNAL_FUNC(cb_movie_select), self);
 	
 	gtk_widget_set_sensitive(self->play_button, FALSE);
-	gtk_widget_show(GTK_WIDGET(self->window));
+	//gtk_widget_show(GTK_WIDGET(self->window));
 	player_init(self);
 	gtk_signal_connect(GTK_OBJECT (self->video_output), "motion-notify-event", GTK_SIGNAL_FUNC (cb_mouse_move), self);
 	gtk_adjustment_set_lower(self->adj_seek, 0);
 	gtk_adjustment_set_upper(self->adj_seek, 0);
 	player_show_controls(self);
+	
 	playlist_init(self);
 	show_playlist(self);
 	self->pl_visible = TRUE;
 	self->playing = FALSE;
 	g_timeout_add (500, (GSourceFunc) player_show_time, self);
-	load_playlist_from_file(self, playlist_path);
-	
-	gtk_main ();
+	//load_playlist_from_file(self, self->playlist_path);
+	playlist_sql_init(self, "bla.db");
+	playlist_sql_reset(self);
+	playlist_sql_insert(self, "entries", "title, path", "'bla', 'blub'");
+	//gtk_main ();
 
 	return 0;
 }

@@ -7,12 +7,12 @@
 #include "player.h"
 #include "playlist.h"
 #include "callbacks.h"
+#include "playlist_sqlite.h"
 
 void playlist_init(panda_player *self) {
 	GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
 	self->list = gtk_list_store_new(1, G_TYPE_STRING);
-	self->pl_entry_count = -1;
-	pl_entry = (playlist_entry *)malloc(sizeof(playlist_entry));
+	
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (self->playlist),
                                                -1,      
                                                "Titel",  
@@ -27,17 +27,11 @@ void playlist_init(panda_player *self) {
 void playlist_add_entry(panda_player *self, gchar *title, gchar *file) {
 	GtkTreeIter iter;
 	g_debug("adding playlist entry: name(%s) path(%s)", title, file);
-	self->pl_entry_count++;
-	
-	//playlist_entry *pl = (playlist_entry *)malloc(sizeof(playlist_entry));
-	//pl = self->pl_entry;
-	
-	//pl = realloc(pl, sizeof(playlist_entry) * self->pl_entry_count+1);
-	pl_entry = (playlist_entry *)realloc(pl_entry, sizeof(playlist_entry)*(self->pl_entry_count+1));
-	sprintf(pl_entry[self->pl_entry_count].name, "%s", title);
-	sprintf(pl_entry[self->pl_entry_count].path, "%s", file);
 	
 	
+	
+	
+		
 	gtk_list_store_append(self->list, &iter);
 	gtk_list_store_set(self->list, &iter, 0, title, -1);
 	
@@ -58,11 +52,12 @@ void show_playlist(panda_player *self) {
 }
 
 void playlist_play_entry(panda_player *self, int line) {
-	g_debug("playing playlist entry #%d: %s (%s)", line, pl_entry[line].name, pl_entry[line].path);
-	load_uri(self, pl_entry[line].path);
+	//g_debug("playing playlist entry #%d: %s (%s)", line, pl_entry[line].name, pl_entry[line].path);
+	//load_uri(self, pl_entry[line].path);
 	player_play(self);
 }
 
+/*
 void load_playlist_from_file(panda_player *self, gchar *filename) {
 	FILE *f = fopen(filename, "r");
 	char *title, *uri;
@@ -85,4 +80,4 @@ void load_playlist_from_file(panda_player *self, gchar *filename) {
 	}
 	
 }
-
+*/
